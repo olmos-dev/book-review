@@ -12,10 +12,12 @@ class BookController extends Controller
      */
     public function index(Request $request)
     {
-        $title = $request->inpunt('title');
+        $title = $request->input('title');
         $books = Book::when($title, function($query, $title){
             return $query->title($title);
         })->get();
+
+        return view("books.index",compact('books'));
     }
 
     /**
