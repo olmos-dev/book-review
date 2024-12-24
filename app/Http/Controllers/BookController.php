@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Book;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class BookController extends Controller
 {
@@ -24,10 +25,8 @@ class BookController extends Controller
             'popular_last_6months' => $books->popularLast6Months(),
             'highest_rated_last_month' => $books->highestRatedLastMonth(),
             'highest_rated_last_6months' => $books->highestRatedLast6Months(),
-            default => $books->latest()
+            default => $books->latest()->withAvgRating()->withReviewsCount()
         };
-
-        $books = $books->get();
 
         $filters = [
             '' => 'Latest',
@@ -38,7 +37,7 @@ class BookController extends Controller
         ];
 
         $cacheKey = 'books:'.$filter.':'.$title;
-        $books = cache()->remember($cacheKey,3600, function() use($books){
+        $books = cache()->remember($cacheKey,3600, function() use ($books){
             return $books->get();
         });
 
@@ -68,12 +67,22 @@ class BookController extends Controller
     {
         $cacheKey = 'book:'.$book->id;
 
-        $book = cache()->remenber($cacheKey, 3600, function() use($book){
-            $book->load([
+        /*
+        $book = cache()->remember($cacheKey, 3600, function() use($book){
+            $book = $book->load([
                 'reviews' => function ($query){
                     return $query->latest();
                 }
             ]);
+            return $book;
+        });
+        */
+        $book = Cache::remember($cacheKey, 3600, function () use ($book) {
+            return Book::with([
+                'reviews' => function ($query) {
+                    return $query->latest();
+                }
+            ])->withAvgRating()->withReviewsCount()->findOrFail($book->id);
         });
 
         return view("books.show",compact("book"));
