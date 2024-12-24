@@ -37,6 +37,11 @@ class BookController extends Controller
             'highest_rated_last_6months' => 'Highest Rated Last 6 Months',
         ];
 
+        $cacheKey = 'books:'.$filter.':'.$title;
+        $books = cache()->remember($cacheKey,3600, function() use($books){
+            return $books->get();
+        });
+
         return view("books.index",compact('books','filters'));
     }
 
@@ -61,11 +66,15 @@ class BookController extends Controller
      */
     public function show(Book $book)
     {
-        $book = $book->load([
-            'reviews' => function ($query){
-                return $query->latest();
-            }
-        ]);
+        $cacheKey = 'book:'.$book->id;
+
+        $book = cache()->remenber($cacheKey, 3600, function() use($book){
+            $book->load([
+                'reviews' => function ($query){
+                    return $query->latest();
+                }
+            ]);
+        });
 
         return view("books.show",compact("book"));
     }
