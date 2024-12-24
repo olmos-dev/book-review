@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Book;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class BookController extends Controller
 {
@@ -36,10 +37,12 @@ class BookController extends Controller
             'highest_rated_last_6months' => 'Highest Rated Last 6 Months',
         ];
 
-        $cacheKey = 'books:'.$filter.':'.$title;
+        $cacheKey = 'books:'.$filter.':'.$title.':'.request('page', 1);
         $books = cache()->remember($cacheKey,3600, function() use ($books){
-            return $books->get();
+            return $books->paginate(10)->withQueryString();
         });
+
+        //$books->paginate(10)->withQueryString(); //only pagination
 
         return view("books.index",compact('books','filters'));
     }

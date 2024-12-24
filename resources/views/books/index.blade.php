@@ -48,5 +48,9 @@
         </li>
     @endforelse
 
+    <div>
+        {{ $books->links() }}
+    </div>
+
 
 @endsection
