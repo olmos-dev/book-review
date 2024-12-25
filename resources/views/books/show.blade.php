@@ -22,6 +22,9 @@
     <a href="{{ route('books.reviews.create', $book) }}" class="reset-link"><i class="fas fa-plus"></i> add new review</a>
   </div>
 
+  <div>
+    <x-alert></x-alert>
+  </div>
 
   <div>
     <h2 class="mb-4 text-xl font-semibold">Reviews</h2>

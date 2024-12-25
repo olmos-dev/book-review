@@ -16,3 +16,4 @@ Route::get('/book/{book}',[BookController::class,'show'])->name("book.show");
 Route::resource('books.reviews', ReviewController::class)
     ->scoped(['review' => 'book'])
     ->only(['create', 'store']);
+

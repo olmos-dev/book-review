@@ -70,16 +70,6 @@ class BookController extends Controller
     {
         $cacheKey = 'book:'.$book->id;
 
-        /*
-        $book = cache()->remember($cacheKey, 3600, function() use($book){
-            $book = $book->load([
-                'reviews' => function ($query){
-                    return $query->latest();
-                }
-            ]);
-            return $book;
-        });
-        */
         $book = Cache::remember($cacheKey, 3600, function () use ($book) {
             return Book::with([
                 'reviews' => function ($query) {
